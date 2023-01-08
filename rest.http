@@ -29,6 +29,12 @@ Content-Type: application/json
   	"role_id": "966ff018-dfcb-49f8-9120-e14ea64f9a7a"
 }
 
+### GET /orders
+GET http://localhost:8080/orders HTTP/1.1
+
+### GET /orders/chart
+GET http://localhost:8080/orders/chart HTTP/1.1
+
 ### GET /users
 GET http://localhost:8080/users HTTP/1.1
 
