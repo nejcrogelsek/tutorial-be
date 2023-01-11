@@ -12,7 +12,10 @@ async function bootstrap() {
     bufferLogs: true,
   })
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: [
+      'http://localhost:3000',
+      'http://skillupmentor-tutorial-frontend-bucket.s3-website.eu-central-1.amazonaws.com/',
+    ],
     credentials: true,
   })
   app.useGlobalPipes(new ValidationPipe())
