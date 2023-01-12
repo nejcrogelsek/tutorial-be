@@ -14,7 +14,8 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'http://skillupmentor-tutorial-frontend-bucket.s3-website.eu-central-1.amazonaws.com/',
+      'http://skillupmentor-tutorial-frontend-bucket.s3-website.eu-central-1.amazonaws.com',
+      'http://skillupmentor-load-balancer-1-839834019.eu-central-1.elb.amazonaws.com',
     ],
     credentials: true,
   })
