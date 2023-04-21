@@ -11,18 +11,13 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common'
-import { GetCurrentUser } from 'decorators/get-current-user.decorator'
-import { GetCurrentUserId } from 'decorators/get-current-user-id.decorator'
 import { Public } from 'decorators/public.decorator'
 import { User } from 'entities/user.entity'
 import { Request, Response } from 'express'
 import { RequestWithUser } from 'interfaces/auth.interface'
-import { UserData } from 'interfaces/user.interface'
 
 import { AuthService } from './auth.service'
 import { RegisterUserDto } from './dto/register-user.dto'
-import { JwtAuthGuard } from './guards/jwt.guard'
-import { JwtRefreshAuthGuard } from './guards/jwt-refresh.guard'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 
 @Controller('auth')
@@ -41,35 +36,22 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Req() req: RequestWithUser, @Res() res: Response): Promise<void> {
-    return this.authService.login(req.user, res)
+  async login(@Req() req: RequestWithUser, @Res({ passthrough: true }) res: Response): Promise<User> {
+    const access_token = await this.authService.generateJwt(req.user)
+    res.cookie('access_token', access_token, { httpOnly: true })
+    return req.user
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('signout')
-  @HttpCode(HttpStatus.OK)
-  async signout(@GetCurrentUserId() userId: string, @Res() res: Response): Promise<void> {
-    return this.authService.signout(userId, res)
-  }
-
-  @UseGuards(JwtRefreshAuthGuard)
-  @Post('refresh')
-  @HttpCode(HttpStatus.ACCEPTED)
-  async refreshTokens(@Req() req: Request): Promise<User> {
-    return this.authService.refreshTokens(req)
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getCurrentUser(@GetCurrentUser() user: User): Promise<UserData> {
-    return {
-      id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      avatar: user.avatar,
-      role: user.role?.id ? { id: user.role?.id, name: user.role?.name } : null,
-    }
+  async user(@Req() req: Request): Promise<User> {
+    const cookie = req.cookies['access_token']
+    return this.authService.user(cookie)
+  }
+
+  @Post('signout')
+  @HttpCode(HttpStatus.OK)
+  signout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token')
   }
 }

@@ -33,10 +33,6 @@ import { UsersModule } from './users/users.module'
   providers: [
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
       useClass: PermissionsGuard,
     },
   ],
